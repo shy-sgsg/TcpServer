@@ -1,3 +1,11 @@
+<!--
+ * @Author: shysgsg 1054733568@qq.com
+ * @Date: 2025-08-14 09:52:14
+ * @LastEditors: shysgsg 1054733568@qq.com
+ * @LastEditTime: 2025-08-14 09:54:09
+ * @FilePath: \Qt_projects\TcpServer\README.md
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 # TcpServer
 
 一个基于Qt框架开发的TCP文件接收服务器，能够监听指定端口并接收客户端发送的文件，支持文件传输状态跟踪和错误处理。

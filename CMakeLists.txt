@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
+# # ✅ 使用标#[[准项目设置宏
+# qt_standard_project_setup()
+
 set(PROJECT_SOURCES
         main.cpp
 
@@ -27,6 +30,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         tcpserver.cpp
         filereceiver.h
         filereceiver.cpp
+        mainwindow.h
+        mainwindow.cpp
+        imagepreviewlabel.h
+        imagepreviewlabel.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET TcpServer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -46,7 +53,11 @@ else()
     endif()
 endif()
 
-target_link_libraries(TcpServer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(TcpServer PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Network
+    # Qt${QT_VERSION_MAJOR}::ImageFormats
+)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

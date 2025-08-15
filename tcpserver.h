@@ -14,6 +14,9 @@ public:
     explicit TcpServer(QObject *parent = nullptr);
     ~TcpServer();
 
+signals:
+    void fileReceived(const QString& filePath); // ✅ 新增：文件接收成功信号
+
 private slots:
     // 当有新的客户端连接时触发
     void handleNewConnection();

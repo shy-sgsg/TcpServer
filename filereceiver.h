@@ -15,6 +15,7 @@ public:
 
 signals:
     void finished();
+    void fileReceived(const QString& filePath); // ✅ 新增：文件接收成功信号
 
 private slots:
     void readData();

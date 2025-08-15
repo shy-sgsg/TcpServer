@@ -96,6 +96,8 @@ void FileReceiver::readData()
 
                     m_isReceiveSuccessful = true; // 标记成功
                     m_socket->disconnectFromHost();
+                    // ✅ 新增：发出文件接收成功信号
+                    emit fileReceived(m_file->fileName());
                     emit finished();
                     return;
                 }
