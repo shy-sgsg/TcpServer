@@ -19,6 +19,7 @@ public:
     void setScrollSpeed(int speed);
     // 开始/暂停滚动
     void toggleScroll(bool start);
+    void setImage(const QPixmap &pixmap);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -29,7 +30,8 @@ private slots:
 
 private:
     QTimer *m_scrollTimer;      // 控制滚动的定时器
-    QVector<QPixmap> m_images;  // 存储所有接收的图片
+    QList<QPixmap> m_originalImages; // 新增：存储原始高分辨率图片
+    QList<QPixmap> m_images;         // 现有：存储用于显示的缩放图片
     QVector<QPoint> m_imagePositions; // 存储每张图片的位置
     QVector<int> m_imageWidths; // 存储每张图片的宽度
     int m_totalWidth;           // 图片总宽度
@@ -37,8 +39,9 @@ private:
     qreal m_scrollOffset;       // 滚动偏移量
     int m_targetHeight;         // 图片显示高度(统一高度)
 
-    // 调整图片位置，实现无缝滚动
+private:
     void adjustImagePositions();
+    void scaleImagesForDisplay(); // 新增一个处理图片缩放的私有函数
 };
 
 #endif // IMAGESCROLLPLAYER_H

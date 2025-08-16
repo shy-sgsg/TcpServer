@@ -9,6 +9,7 @@ ImageScrollPlayer::ImageScrollPlayer(QWidget *parent)
     m_totalWidth(0),
     m_targetHeight(0)
 {
+    // m_scrollLabel = new ImageScrollLabel(this);
     m_scrollTimer = new QTimer(this);
     // 每30毫秒更新一次，约33帧/秒
     connect(m_scrollTimer, &QTimer::timeout, this, &ImageScrollPlayer::updateScrollPosition);
@@ -22,23 +23,43 @@ void ImageScrollPlayer::addNewImage(const QString &imagePath)
 {
     QPixmap pixmap(imagePath);
     if (!pixmap.isNull()) {
-        // 计算图片应显示的尺寸（按窗口高度等比例缩放）
-        if (m_targetHeight == 0) {
-            m_targetHeight = height() * 0.9; // 默认为窗口高度的90%
-        }
-
-        QSize scaledSize = pixmap.size();
-        scaledSize.scale(QWIDGETSIZE_MAX, m_targetHeight, Qt::KeepAspectRatio);
-
-        m_images.append(pixmap.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        m_imageWidths.append(scaledSize.width());
-        m_totalWidth += scaledSize.width();
-
-        adjustImagePositions();
+        m_originalImages.append(pixmap); // 将原始图片存入新列表
+        scaleImagesForDisplay();         // 调用新函数进行缩放和布局
         update();
     } else {
         qDebug() << "无法加载图片:" << imagePath;
     }
+}
+
+void ImageScrollPlayer::resizeEvent(QResizeEvent *event)
+{
+    scaleImagesForDisplay();
+    QWidget::resizeEvent(event);
+}
+
+void ImageScrollPlayer::scaleImagesForDisplay()
+{
+    if (m_originalImages.isEmpty()) return;
+
+    m_targetHeight = height() * 0.9;
+    m_totalWidth = 0;
+    m_imageWidths.clear();
+    m_images.clear(); // 清空旧的缩放图片
+
+    for (int i = 0; i < m_originalImages.size(); ++i) {
+        const QPixmap &originalPix = m_originalImages[i];
+
+        QSize scaledSize = originalPix.size();
+        scaledSize.scale(QWIDGETSIZE_MAX, m_targetHeight, Qt::KeepAspectRatio);
+
+        // 从原始图片进行缩放，并存入用于显示的列表
+        m_images.append(originalPix.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        m_imageWidths.append(scaledSize.width());
+        m_totalWidth += scaledSize.width();
+    }
+
+    adjustImagePositions();
+    update();
 }
 
 void ImageScrollPlayer::setScrollSpeed(int speed)
@@ -74,25 +95,6 @@ void ImageScrollPlayer::paintEvent(QPaintEvent *event)
             painter.drawPixmap(pos, pix);
         }
     }
-}
-
-void ImageScrollPlayer::resizeEvent(QResizeEvent *event)
-{
-    m_targetHeight = height() * 0.9;
-    // 重新计算所有图片尺寸
-    m_totalWidth = 0;
-    m_imageWidths.clear();
-
-    for (int i = 0; i < m_images.size(); ++i) {
-        QSize scaledSize = m_images[i].size();
-        scaledSize.scale(QWIDGETSIZE_MAX, m_targetHeight, Qt::KeepAspectRatio);
-        m_imageWidths.append(scaledSize.width());
-        m_totalWidth += scaledSize.width();
-        m_images[i] = m_images[i].scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    }
-
-    adjustImagePositions();
-    QWidget::resizeEvent(event);
 }
 
 void ImageScrollPlayer::updateScrollPosition()

@@ -85,7 +85,8 @@ void MainWindow::onOpenScrollPlayerClicked()
         QDir dir(m_receiveDir);
         QStringList filters;
         filters << "*.jpg" << "*.png" << "*.bmp" << "*.tif";
-        QFileInfoList fileList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot, QDir::Time);
+        // 按照时间降序排序（最新接收的排在最后面）
+        QFileInfoList fileList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
 
         // 按时间顺序添加（最新的在最后）
         for (const QFileInfo& fileInfo : fileList) {
@@ -285,7 +286,7 @@ void MainWindow::refreshFileList()
 
     QStringList filters;
     filters << "*.jpg" << "*.png" << "*.bmp" << "*.tif";
-    QFileInfoList fileList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
+    QFileInfoList fileList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot, QDir::Time | QDir::Reversed);
 
     for (const QFileInfo& fileInfo : fileList) {
         ui->fileListWidget->addItem(fileInfo.fileName());
@@ -295,6 +296,10 @@ void MainWindow::refreshFileList()
 void MainWindow::onFileReceived(const QString& filePath)
 {
     qDebug() << "文件已接收：" << filePath << "，正在刷新列表。";
+
+    // 消息日志显示文件接收信息
+    onMessageReceived(QString("已成功接收文件：%1").arg(QFileInfo(filePath).fileName()));
+
     refreshFileList();
 
     // 如果滚动播放器已打开，添加新图片
