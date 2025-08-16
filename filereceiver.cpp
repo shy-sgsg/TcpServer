@@ -30,8 +30,31 @@ FileReceiver::~FileReceiver()
 
 void FileReceiver::readData()
 {
+    // 如果是初始状态，尝试识别协议头
+    if (m_state == ReadingFileNameLength) {
+        if (m_socket->bytesAvailable() >= 4) {
+            QByteArray peekData = m_socket->peek(4);
+            if (peekData == "MSG:") {
+                m_socket->read(4); // 消耗协议头
+                m_state = ReadingMessage;
+            }
+        }
+    }
+
     while (m_socket->bytesAvailable() > 0) {
         switch (m_state) {
+            case ReadingMessage: {
+                QByteArray messageData = m_socket->readAll();
+                QString message = QString::fromUtf8(messageData);
+                qDebug() << "\033[34m接收到新消息：" << message << "\033[0m";
+                emit messageReceived(message); // ✅ 发出消息信号
+
+                // 重置状态，准备接收下一个数据包
+                m_state = ReadingFileNameLength;
+
+                // 消息通常是短的，处理完后可以退出，等待下一个 readyRead 信号
+                return;
+            }
             case ReadingFileNameLength:
                 // 确保有足够的数据来读取文件名长度
                 if (m_socket->bytesAvailable() >= sizeof(qint32)) {

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(TcpServer VERSION 0.1 LANGUAGES CXX)
 
+# 启用自动处理功能
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -9,70 +10,54 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+# 查找并加载 Qt 包
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
 
-# # ✅ 使用标#[[准项目设置宏
-# qt_standard_project_setup()
-
+# 收集所有项目源文件和头文件
+# 这是一个更清晰和更易于维护的方式
 set(PROJECT_SOURCES
-        main.cpp
-
-
-
+    main.cpp
+    tcpserver.cpp
+    filereceiver.cpp
+    mainwindow.cpp
+    imagepreviewlabel.cpp
+    fullscreenimagepreview.cpp
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(TcpServer
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-        tcpserver.h
-        tcpserver.cpp
-        filereceiver.h
-        filereceiver.cpp
-        mainwindow.h
-        mainwindow.cpp
-        imagepreviewlabel.h
-        imagepreviewlabel.cpp
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET TcpServer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-else()
-    if(ANDROID)
-        add_library(TcpServer SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(TcpServer
-            ${PROJECT_SOURCES}
-        )
-    endif()
-endif()
+set(PROJECT_HEADERS
+    tcpserver.h
+    filereceiver.h
+    mainwindow.h
+    imagepreviewlabel.h
+    fullscreenimagepreview.h
+)
 
+# 1. 首先，使用 qt_add_executable() 创建可执行目标
+qt_add_executable(TcpServer
+    ${PROJECT_SOURCES}
+    ${PROJECT_HEADERS}
+    mainwindow.ui
+)
+
+# 2. 然后，为这个目标添加头文件目录
+target_include_directories(TcpServer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}) # ✅ 这行代码应该放在 qt_add_executable 后面
+
+# 3. 接着，为目标链接库
 target_link_libraries(TcpServer PRIVATE
-    Qt${QT_VERSION_MAJOR}::Widgets
-    Qt${QT_VERSION_MAJOR}::Network
-    # Qt${QT_VERSION_MAJOR}::ImageFormats
+    Qt6::Widgets
+    Qt6::Network
 )
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.TcpServer)
-endif()
+# 设置目标属性
 set_target_properties(TcpServer PROPERTIES
-    ${BUNDLE_ID_OPTION}
+    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.TcpServer
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
 
+# 安装目标
 include(GNUInstallDirs)
 install(TARGETS TcpServer
     BUNDLE DESTINATION .
@@ -80,6 +65,7 @@ install(TARGETS TcpServer
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+# 必要的 Qt 6 最终化步骤
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(TcpServer)
 endif()

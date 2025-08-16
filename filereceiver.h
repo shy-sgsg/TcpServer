@@ -16,6 +16,7 @@ public:
 signals:
     void finished();
     void fileReceived(const QString& filePath); // ✅ 新增：文件接收成功信号
+    void messageReceived(const QString& message);
 
 private slots:
     void readData();
@@ -33,7 +34,8 @@ private:
         ReadingFileNameLength, // 接收文件名的长度
         ReadingFileName,       // 接收完整文件名
         ReadingHeader,         // 接收文件大小
-        ReadingData            // 接收文件内容
+        ReadingData,           // 接收文件内容
+        ReadingMessage
     };
     State m_state;
     qint32 m_fileNameLength; // 新增：存储文件名长度

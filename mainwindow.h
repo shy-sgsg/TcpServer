@@ -7,8 +7,21 @@
 #include <QPushButton>
 #include <QFileSystemWatcher>
 #include <QSplitter>
+#include <QTcpServer>
+#include "filereceiver.h"
 #include "imagepreviewlabel.h"
+#include "fullscreenimagepreview.h"
+#include <QCheckBox>
+#include <QLineEdit>  // ✅ 新增
+#include <QPushButton> // ✅ 新增
+#include <QHostAddress>
 
+// 前向声明 UI 类
+namespace Ui {
+class MainWindow;
+}
+
+class FileReceiver; // ✅ 前向声明 FileReceiver
 
 class MainWindow : public QMainWindow
 {
@@ -28,6 +41,13 @@ private slots:
     void refreshFileList();      // 刷新文件列表
     void previewImage(QListWidgetItem* item); // 新增槽函数，用于在点击文件列表时预览图片
     void handleDirectoryChanged(const QString& path);
+    void handleReceivePathChanged(const QString& path);
+    // void onHideFileListToggled(bool checked);
+    void onFileListDoubleClicked(QListWidgetItem* item);
+    void onBrowseReceiveButtonClicked();
+    void onMessageReceived(const QString& message); // ✅ 新增槽函数
+    void onNewConnection(); // ✅ 新增槽函数，用于处理新连接
+    void onStartServerButtonClicked();
 
 protected:
     // ✅ 重写事件处理函数
@@ -36,26 +56,26 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    void createWidgets();
-    void createLayout();
     void updateImagePreview(); // 新增函数，用于更新图片显示
+    bool startServer(); // ✅ 新增的函数，封装服务器启动逻辑
+    void stopServer(); // ✅ 新增的函数，封装服务器停止逻辑
+
+private:
+    Ui::MainWindow *ui;
 
     QString m_receiveDir;
-    QListWidget* m_fileListWidget;
-    ImagePreviewLabel* m_imagePreviewLabel;
-
-    // ✅ 将按钮声明为成员变量
-    QPushButton* m_openDirButton;
-    QPushButton* m_refreshButton;
-
     QFileSystemWatcher* m_watcher;
-
-    // ✅ 新增成员变量用于管理图片状态
     QPixmap m_originalPixmap; // 原始图片
     QPixmap m_scaledPixmap;   // 缩放后的图片
     qreal m_scaleFactor;      // 缩放比例
     QPoint m_lastMousePos;    // 上次鼠标位置，用于拖动
     QPoint m_imageOffset;     // 图片偏移量，用于拖动
+
+    QTcpServer* m_tcpServer;
+
+    // ✅ 新增的成员变量，用于存储服务器配置
+    QHostAddress m_serverAddress;
+    quint16 m_serverPort;
 };
 
 #endif // MAINWINDOW_H
