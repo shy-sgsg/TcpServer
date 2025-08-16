@@ -37,6 +37,8 @@ qt_add_executable(TcpServer
     ${PROJECT_SOURCES}
     ${PROJECT_HEADERS}
     mainwindow.ui
+    imagescrollplayer.h
+    imagescrollplayer.cpp
 )
 
 # 2. 然后，为这个目标添加头文件目录

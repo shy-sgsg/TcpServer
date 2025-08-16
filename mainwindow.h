@@ -12,9 +12,10 @@
 #include "imagepreviewlabel.h"
 #include "fullscreenimagepreview.h"
 #include <QCheckBox>
-#include <QLineEdit>  // ✅ 新增
-#include <QPushButton> // ✅ 新增
+#include <QLineEdit>
+#include <QPushButton>
 #include <QHostAddress>
+#include "imagescrollplayer.h"
 
 // 前向声明 UI 类
 namespace Ui {
@@ -48,6 +49,8 @@ private slots:
     void onMessageReceived(const QString& message); // ✅ 新增槽函数
     void onNewConnection(); // ✅ 新增槽函数，用于处理新连接
     void onStartServerButtonClicked();
+    void onOpenScrollPlayerClicked();
+    void onScrollWindowClosed();
 
 protected:
     // ✅ 重写事件处理函数
@@ -76,6 +79,8 @@ private:
     // ✅ 新增的成员变量，用于存储服务器配置
     QHostAddress m_serverAddress;
     quint16 m_serverPort;
+
+    ImageScrollPlayer *m_imageScrollPlayer; // 新增滚动播放器
 };
 
 #endif // MAINWINDOW_H

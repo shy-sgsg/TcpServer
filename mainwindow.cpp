@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_imageOffset(0, 0)
     , m_watcher(new QFileSystemWatcher(this))
     , m_tcpServer(new QTcpServer(this))
+    , m_imageScrollPlayer(nullptr)
 {
     ui->setupUi(this); // ✅ 设置界面
 
@@ -61,11 +62,53 @@ MainWindow::MainWindow(QWidget *parent)
     m_watcher->addPath(m_receiveDir);
     setMouseTracking(true);
     refreshFileList();
+
+    connect(ui->openScrollWindow, &QPushButton::clicked, this, &MainWindow::onOpenScrollPlayerClicked);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+// 打开滚动播放器
+// 打开滚动播放器
+void MainWindow::onOpenScrollPlayerClicked()
+{
+    if (!m_imageScrollPlayer) {
+        m_imageScrollPlayer = new ImageScrollPlayer;
+
+        // 关键修改：设置窗口关闭时自动销毁
+        m_imageScrollPlayer->setAttribute(Qt::WA_DeleteOnClose);
+
+        // 加载已有的图片
+        QDir dir(m_receiveDir);
+        QStringList filters;
+        filters << "*.jpg" << "*.png" << "*.bmp" << "*.tif";
+        QFileInfoList fileList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot, QDir::Time);
+
+        // 按时间顺序添加（最新的在最后）
+        for (const QFileInfo& fileInfo : fileList) {
+            m_imageScrollPlayer->addNewImage(fileInfo.filePath());
+        }
+
+        m_imageScrollPlayer->setScrollSpeed(30); // 设置滚动速度
+        m_imageScrollPlayer->toggleScroll(true); // 开始滚动
+
+        // 关键修改：连接窗口关闭信号到自定义槽函数
+        connect(m_imageScrollPlayer, &QWidget::destroyed, this, &MainWindow::onScrollWindowClosed);
+
+        m_imageScrollPlayer->show();
+    } else {
+        m_imageScrollPlayer->raise();
+        m_imageScrollPlayer->activateWindow();
+    }
+}
+
+void MainWindow::onScrollWindowClosed()
+{
+    // 窗口关闭后重置指针
+    m_imageScrollPlayer = nullptr;
 }
 
 // ✅ 新增的服务器启动/重启槽函数
@@ -123,7 +166,7 @@ bool MainWindow::startServer()
     }
 
     if (!m_tcpServer->listen(m_serverAddress, m_serverPort)) {
-        QMessageBox::critical(this, "错误", "无法启动服务器：" + m_tcpServer->errorString());
+        // QMessageBox::critical(this, "错误", "无法启动服务器：" + m_tcpServer->errorString());
         return false;
     }
 
@@ -253,6 +296,11 @@ void MainWindow::onFileReceived(const QString& filePath)
 {
     qDebug() << "文件已接收：" << filePath << "，正在刷新列表。";
     refreshFileList();
+
+    // 如果滚动播放器已打开，添加新图片
+    if (m_imageScrollPlayer) {
+        m_imageScrollPlayer->addNewImage(filePath);
+    }
 }
 
 // ✅ 新的更新图片预览函数

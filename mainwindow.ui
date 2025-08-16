@@ -108,17 +108,31 @@
          </layout>
         </item>
         <item>
-         <widget class="ImagePreviewLabel" name="imagePreviewLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="leftMargin">
+           <number>10</number>
           </property>
-          <property name="text">
-           <string>                                                       图片预览</string>
-          </property>
-         </widget>
+          <item>
+           <widget class="ImagePreviewLabel" name="imagePreviewLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>                                                       图片预览</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="openScrollWindow">
+            <property name="text">
+             <string>滚动播放</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
