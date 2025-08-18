@@ -41,7 +41,8 @@ void ImageScrollPlayer::scaleImagesForDisplay()
 {
     if (m_originalImages.isEmpty()) return;
 
-    m_targetHeight = height() * 0.9;
+    // m_targetHeight = height() * 0.9;
+    m_targetHeight = height() * 1;
     m_totalWidth = 0;
     m_imageWidths.clear();
     m_images.clear(); // 清空旧的缩放图片
